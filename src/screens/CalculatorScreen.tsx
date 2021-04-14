@@ -4,7 +4,7 @@ import ButtonCal from '../components/ButtonCal';
 import {styles} from '../theme/appTheme';
 
 export const CalculatorScreen = () => {
-  const [number, setNumber] = useState('100');
+  const [number, setNumber] = useState('0');
   const [previousNumber, setPreviousNumber] = useState('0');
 
   const clean = () => {
@@ -12,7 +12,39 @@ export const CalculatorScreen = () => {
   };
 
   const buildNumber = (numberText: string) => {
-    setNumber(number + numberText);
+    // Validacion: No aceptar doble punto
+    if (number.includes('.') && numberText === '.') return;
+
+    if (number.startsWith('0') || number.startsWith('-0')) {
+      // Punto decimal
+      if (numberText === '.') {
+        setNumber(number + numberText);
+
+        // Evaluar si es otro cero, y hay un punto
+      } else if (numberText === '0' && number.includes('.')) {
+        setNumber(number + numberText);
+
+        // Evaluar si es diferente de cero y no tiene un punto
+      } else if (numberText !== '0' && !number.includes('.')) {
+        setNumber(numberText);
+
+        // Evitar el 000.00
+      } else if (numberText === '0' && !number.includes('.')) {
+        setNumber(number);
+      } else {
+        setNumber(number + numberText);
+      }
+    } else {
+      setNumber(number + numberText);
+    }
+  };
+
+  const positiveNegative = () => {
+    if (number.includes('-')) {
+      setNumber(number.replace('-', ''));
+    } else {
+      setNumber('-' + number);
+    }
   };
 
   return (
@@ -24,7 +56,7 @@ export const CalculatorScreen = () => {
 
       <View style={styles.row}>
         <ButtonCal text="C" color="#9B9B9B" action={clean} />
-        <ButtonCal text="+/-" color="#9B9B9B" action={clean} />
+        <ButtonCal text="+/-" color="#9B9B9B" action={positiveNegative} />
         <ButtonCal text="del" color="#9B9B9B" action={clean} />
         <ButtonCal text="/" color="#FF9427" action={clean} />
       </View>
