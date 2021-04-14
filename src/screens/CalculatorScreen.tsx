@@ -1,14 +1,24 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {Text, View} from 'react-native';
 import ButtonCal from '../components/ButtonCal';
 import {styles} from '../theme/appTheme';
 
+enum Operators {
+  add,
+  subtract,
+  multiply,
+  divide,
+}
+
 export const CalculatorScreen = () => {
-  const [number, setNumber] = useState('0');
   const [previousNumber, setPreviousNumber] = useState('0');
+  const [number, setNumber] = useState('0');
+
+  const lastOperation = useRef<Operators>();
 
   const clean = () => {
     setNumber('0');
+    setPreviousNumber('0');
   };
 
   const buildNumber = (numberText: string) => {
@@ -63,9 +73,37 @@ export const CalculatorScreen = () => {
     }
   };
 
+  const changeNumToPrevious = () => {
+    if (number.endsWith('.')) {
+      setPreviousNumber(number.slice(0, -1));
+    } else {
+      setPreviousNumber(number);
+    }
+    setNumber('0');
+  };
+
+  const btnDivide = () => {
+    changeNumToPrevious();
+    lastOperation.current = Operators.divide;
+  };
+  const btnMultiply = () => {
+    changeNumToPrevious();
+    lastOperation.current = Operators.multiply;
+  };
+  const btnSubtract = () => {
+    changeNumToPrevious();
+    lastOperation.current = Operators.subtract;
+  };
+  const btnAdd = () => {
+    changeNumToPrevious();
+    lastOperation.current = Operators.add;
+  };
+
   return (
     <View style={styles.calculatorContainer}>
-      <Text style={styles.resultSmall}>{previousNumber}</Text>
+      {previousNumber !== '0' && (
+        <Text style={styles.resultSmall}>{previousNumber}</Text>
+      )}
       <Text style={styles.result} numberOfLines={1} adjustsFontSizeToFit>
         {number}
       </Text>
@@ -74,25 +112,25 @@ export const CalculatorScreen = () => {
         <ButtonCal text="C" color="#9B9B9B" action={clean} />
         <ButtonCal text="+/-" color="#9B9B9B" action={positiveNegative} />
         <ButtonCal text="del" color="#9B9B9B" action={btnDelete} />
-        <ButtonCal text="/" color="#FF9427" action={clean} />
+        <ButtonCal text="/" color="#FF9427" action={btnDivide} />
       </View>
       <View style={styles.row}>
         <ButtonCal text="7" action={buildNumber} />
         <ButtonCal text="8" action={buildNumber} />
         <ButtonCal text="9" action={buildNumber} />
-        <ButtonCal text="X" color="#FF9427" action={clean} />
+        <ButtonCal text="x" color="#FF9427" action={btnMultiply} />
       </View>
       <View style={styles.row}>
         <ButtonCal text="4" action={buildNumber} />
         <ButtonCal text="5" action={buildNumber} />
         <ButtonCal text="6" action={buildNumber} />
-        <ButtonCal text="-" color="#FF9427" action={clean} />
+        <ButtonCal text="-" color="#FF9427" action={btnSubtract} />
       </View>
       <View style={styles.row}>
         <ButtonCal text="1" action={buildNumber} />
         <ButtonCal text="2" action={buildNumber} />
         <ButtonCal text="3" action={buildNumber} />
-        <ButtonCal text="+" color="#FF9427" action={clean} />
+        <ButtonCal text="+" color="#FF9427" action={btnAdd} />
       </View>
       <View style={styles.row}>
         <ButtonCal text="0" ancho action={buildNumber} />
